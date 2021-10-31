@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres
+    container_name: db
+    networks:
+      - django-template
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - ../django-template/db_dev:${DB_DATA_PATH}
+    healthcheck:
+      test: "exit 0"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: ${DB_DATA_PATH}
+
+  web:
+    build:
+      context: ..
+      dockerfile: ./deployment/dockerfiles/backend/Dockerfile
+    image: django-template
+    container_name: web
+    networks:
+      - django-template
+      - nginx
+    depends_on:
+      - db
+    ports:
+      - ${WEB_PORT}:${WEB_PORT}
+    volumes:
+      - ../django-template/deployment:/opt/app/deployment
+      - ../django-template/templates:/opt/app/templates
+      - ../django-template/src:/opt/app/src
+    command: bash -c "./deployment/scripts/uvicorn.sh"
+    environment:
+      - WEB_PORT
+      - LEVEL
+      - DB_USER
+      - DB_PASSWORD
+      - DB_NAME
+      - HOST
+
+networks:
+  django-template:
+    external:
+      name: django-template
+  nginx:
+    external:
+      name: nginx
