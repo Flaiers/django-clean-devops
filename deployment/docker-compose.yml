@@ -46,8 +46,8 @@ services:
 
 networks:
   django-template:
-    external:
-      name: django-template
+    name: django-template
+    driver: bridge
   nginx:
     external:
       name: nginx
