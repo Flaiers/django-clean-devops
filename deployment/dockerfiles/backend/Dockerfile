@@ -9,7 +9,7 @@ WORKDIR /opt/app
 COPY django-template/ .
 
 # update apt packages, install psql
-RUN apt-get update && apt-get install -y postgresql-client
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client
 
 # create environment, install packages, makemigrations
 RUN python -m venv env && . env/bin/activate && cd src/ && \
