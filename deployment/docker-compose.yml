@@ -40,10 +40,8 @@ services:
     ports:
       - ${WEB_PORT}:${WEB_PORT}
     volumes:
-      - ../backend/deployment:/opt/app/deployment
-      - ../backend/templates:/opt/app/templates
-      - ../backend/public:/opt/app/public
-      - ../backend/src:/opt/app/src
+      - ../backend:/opt/app
+      - /opt/app/.venv/
 
 networks:
   project:
