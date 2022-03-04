@@ -1,40 +1,31 @@
-version: '3.7'
+version: "3.9"
 
 services:
   db:
-    image: postgres
     container_name: db
-    networks:
-      - django-template
-    ports:
-      - ${DB_PORT}:5432
-    volumes:
-      - ../django-template/db:${DB_DATA_PATH}
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
       PGDATA: ${DB_DATA_PATH}
+    image: postgres
+    networks:
+      - project
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - db-data:${DB_DATA_PATH}
 
   web:
     build:
       context: ..
       dockerfile: ./deployment/dockerfiles/backend/Dockerfile
-    image: django-template
+    command: 
+      - ./deployment/scripts/wait-for-postgres.sh
+      - ./deployment/scripts/uvicorn.sh
     container_name: web
-    networks:
-      - django-template
-      - nginx
     depends_on:
       - db
-    ports:
-      - ${WEB_PORT}:${WEB_PORT}
-    volumes:
-      - ../django-template/deployment:/opt/app/deployment
-      - ../django-template/templates:/opt/app/templates
-      - ../django-template/public:/opt/app/public
-      - ../django-template/src:/opt/app/src
-    command: ["./deployment/scripts/wait-for-postgres.sh", "./deployment/scripts/uvicorn.sh"]
     environment:
       - WEB_PORT
       - LEVEL
@@ -42,11 +33,27 @@ services:
       - DB_PASSWORD
       - DB_NAME
       - HOST
+    image: backend
+    networks:
+      - project
+      - nginx
+    ports:
+      - ${WEB_PORT}:${WEB_PORT}
+    volumes:
+      - ../backend/deployment:/opt/app/deployment
+      - ../backend/templates:/opt/app/templates
+      - ../backend/public:/opt/app/public
+      - ../backend/src:/opt/app/src
 
 networks:
-  django-template:
-    name: django-template
+  project:
+    name: project
     driver: bridge
+
   nginx:
     external:
       name: nginx
+
+volumes:
+  db-data:
+    name: backend_db-data
