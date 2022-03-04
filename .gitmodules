@@ -1,0 +1,4 @@
+[submodule "backend"]
+	path = backend
+	url = git@github.com:Flaiers/django-clean-architecture.git
+	branch = main
