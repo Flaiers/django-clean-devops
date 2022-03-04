@@ -1,4 +1,0 @@
-[submodule "django-template"]
-	path = django-template
-	url = git@github.com:Flaiers/django-template.git
-	branch = master
